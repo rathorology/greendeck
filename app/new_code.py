@@ -162,11 +162,23 @@ def prepare_dataset(path='dumps/netaporter_gb.json'):
                     'price_changes', 'price_positioning', 'price_positioning_text', 'sizes']
         df = df.drop(drop_col, axis=1)
         df.to_csv("dumps/nap.csv", index=False)
+
+
 def master_function(args):
     query = args['query_type']
     filters = args['filters']
-
+    if query == 'discounted_products_list':
+        results = discounted_products_list(filters)
+    elif query == 'discounted_products_count' or 'avg_discount' or 'discounted_products_count|avg_discount':
+        results = discounted_products_count_or_avg_discount(query, filters)
+    elif query == 'expensive_list':
+        results = expensive_list(filters)
+    elif query == 'competition_discount_diff_list':
+        results = competition_discount_diff_list(filters)
+    else:
+        results = 'Invalid Query'
     return results
+
 
 # RUN FLASK APPLICATION
 if __name__ == '__main__':
@@ -177,7 +189,10 @@ if __name__ == '__main__':
     # PREPARING DATASET
     prepare_dataset('dumps/netaporter_gb.json')
 
-    # master_function(args)
+    #args = {"query_type": "discounted_products_list",
+     #       "filters": [{"operand1": "discount", "operator": ">", "operand2": 5}]}
+    results = master_function(args)
 
     # RUNNNING FLASK APP
     app.run(debug=True, host='0.0.0.0', port=5000)
+
