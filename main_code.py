@@ -27,9 +27,10 @@ def get_operator_fn(op):
 
 def preprocesser(filters):
     df = pd.read_csv('dumps/nap.csv')
-    # df = df[['_id', 'name', 'price_offer_price', 'price_regular_price']]
 
     df['discount'] = 100 * ((df['price_regular_price'] - df['price_offer_price']) / df['price_regular_price'])
+    if filters == None:
+        return df
     for cond in filters:
         operand1 = cond['operand1']
         op = cond['operator']
@@ -63,11 +64,11 @@ def discounted_products_count_or_avg_discount(query, filters):
     discounted_products_count = df.shape[0]
     avg_dicount = np.average(df['discount'])
     if query == "discounted_products_count|avg_discount":
-        return {'discounted_products_count': discounted_products_count, 'avg_dicount': avg_dicount}
+        return {'discounted_products_count': discounted_products_count, 'avg_discount': avg_dicount}
     elif query == "discounted_products_count":
         return {'discounted_products_count': discounted_products_count}
     else:
-        return {'avg_dicount': avg_dicount}
+        return {'avg_discount': avg_dicount}
 
 
 def expensive_list(filters):
@@ -168,10 +169,13 @@ def prepare_dataset(path='dumps/netaporter_gb.json'):
 def master_function():
     args = request.get_json(force=True)
     query = args['query_type']
-    filters = args['filters']
+    try:
+        filters = args['filters']
+    except Exception as e:
+        filters = None
     if query == 'discounted_products_list':
         results = discounted_products_list(filters)
-    elif query == 'discounted_products_count' or 'avg_discount' or 'discounted_products_count|avg_discount':
+    elif query in ['discounted_products_count', 'avg_discount', 'discounted_products_count|avg_discount']:
         results = discounted_products_count_or_avg_discount(query, filters)
     elif query == 'expensive_list':
         results = expensive_list(filters)
@@ -190,7 +194,6 @@ if __name__ == '__main__':
 
     # PREPARING DATASET
     prepare_dataset('dumps/netaporter_gb.json')
-    
+
     # RUNNNING FLASK APP
     app.run(debug=True, threaded=True, host='0.0.0.0', port=5000)
-
