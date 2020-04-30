@@ -26,7 +26,7 @@ def get_operator_fn(op):
 
 
 def preprocesser(filters):
-    df = pd.read_csv('NAP.csv')
+    df = pd.read_csv('dumps/nap.csv')
     # df = df[['_id', 'name', 'price_offer_price', 'price_regular_price']]
 
     df['discount'] = 100 * ((df['price_regular_price'] - df['price_offer_price']) / df['price_regular_price'])
@@ -52,7 +52,7 @@ def preprocesser(filters):
     return df
 
 
-def discounted_products_list(filters, inner):
+def discounted_products_list(filters):
     df = preprocesser(filters)
     discounted_products_list = df['_id'].tolist()
     return {'discounted_products_list': discounted_products_list}
