@@ -1,22 +1,20 @@
 import json
-from functools import partial
 from flask_cors import CORS
 from flask import request
 import gdown
 import flask
-import io
 import os
+import pandas as pd
+import numpy as np
+import operator
 
 url = 'https://drive.google.com/a/greendeck.co/uc?id=19r_vn0vuvHpE-rJpFHvXHlMvxa8UOeom&export=download'
 # Create Flask application
 app = flask.Flask(__name__)
 CORS(app)
 
-import pandas as pd
-import numpy as np
-import operator
 
-
+# Converts operator symbol to function
 def get_operator_fn(op):
     return {
         '<': operator.lt,
@@ -25,6 +23,7 @@ def get_operator_fn(op):
     }[op]
 
 
+# Will be used across all problem statement to load pre-process data and apply condition.
 def preprocesser(filters):
     df = pd.read_csv('dumps/nap.csv')
 
@@ -44,21 +43,25 @@ def preprocesser(filters):
                        '5da94ef80ffeca000172b12c', '5da94e940ffeca000172b12a']
             for id in comp_id:
                 df['diss' + str(id)] = (df['price_basket_price'] - df[id]) > (df[id] * (operand2 / 100))
+            df = df[df[['diss5da94f4e6d97010001f81d72', 'diss5da94f270ffeca000172b12e',
+                        'diss5d0cc7b68a66a100014acdb0', 'diss5da94ef80ffeca000172b12c',
+                        'diss5da94e940ffeca000172b12a']].any(1)]
         elif operand1 == 'competition':
             df = df[df['diss' + operand2] == True]
         else:
             print("New Condition")
 
-        return df
     return df
 
 
+# Problem statement 1
 def discounted_products_list(filters):
     df = preprocesser(filters)
     discounted_products_list = df['_id'].tolist()
     return {'discounted_products_list': discounted_products_list}
 
 
+# Problem statement 2
 def discounted_products_count_or_avg_discount(query, filters):
     df = preprocesser(filters)
     discounted_products_count = df.shape[0]
@@ -71,6 +74,7 @@ def discounted_products_count_or_avg_discount(query, filters):
         return {'avg_discount': avg_dicount}
 
 
+# Problem statement 3
 def expensive_list(filters):
     df = preprocesser(filters)
     df = df[(df['price_basket_price'] > df['5da94f4e6d97010001f81d72']) |
@@ -83,32 +87,14 @@ def expensive_list(filters):
     return {'expensive_list': expensive_list}
 
 
+# Problem staement 4
 def competition_discount_diff_list(filters):
     df = preprocesser(filters)
     competition_discount_diff_list = df['_id'].tolist()
     return {"competition_discount_diff_list": competition_discount_diff_list}
 
 
-# filters = [{"operand1": "discount", "operator": ">", "operand2": 5},
-#            {"operand1": "brand.name", "operator": "==", "operand2": "balenciaga"}]
-# result = discounted_products_list(filters,inner=False)
-# result = discounted_products_list(filters, inner=True)
-########################################################################################
-# query = "discounted_products_count|avg_discount"
-# filters = [{"operand1": "brand.name", "operator": "==", "operand2": "balenciaga"},
-#            {"operand1": "discount", "operator": ">", "operand2": 10}]
-# result = discounted_products_count_or_avg_discount(query, filters)
-###########################################################################################
-# filters = [{"operand1": "brand.name", "operator": "==", "operand2": "gucci"}]
-# result = expensive_list(filters)
-# print(result)
-###########################################################################################
-# filters = [
-#     {"operand1": "discount_diff", "operator": ">", "operand2": 10},
-#     {"operand1": "competition", "operator": "==", "operand2": "5d0cc7b68a66a100014acdb0"}
-# ]
-# result = competition_discount_diff_list(filters)
-
+# Download data
 def init_files(dump_path='dumps/netaporter_gb.json'):
     if dump_path.split('/')[0] not in os.listdir():
         os.mkdir(dump_path.split('/')[0])
@@ -118,6 +104,7 @@ def init_files(dump_path='dumps/netaporter_gb.json'):
         gdown.download(url=url, output=dump_path, quiet=False)
 
 
+# Preprocess data from json file and dump csv into dumps
 def prepare_dataset(path='dumps/netaporter_gb.json'):
     '''YOUR DATA PREPARATION CODE HERE'''
     csv_path = 'dumps/nap.csv'
@@ -165,6 +152,7 @@ def prepare_dataset(path='dumps/netaporter_gb.json'):
         df.to_csv("dumps/nap.csv", index=False)
 
 
+# Main Function
 @app.route('/master_function', methods=['POST'])
 def master_function():
     args = request.get_json(force=True)
