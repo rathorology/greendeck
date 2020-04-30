@@ -164,7 +164,9 @@ def prepare_dataset(path='dumps/netaporter_gb.json'):
         df.to_csv("dumps/nap.csv", index=False)
 
 
-def master_function(args):
+@app.route('/master_function', methods=['POST'])
+def master_function():
+    args = request.get_json(force=True)
     query = args['query_type']
     filters = args['filters']
     if query == 'discounted_products_list':
@@ -188,11 +190,7 @@ if __name__ == '__main__':
 
     # PREPARING DATASET
     prepare_dataset('dumps/netaporter_gb.json')
-
-    #args = {"query_type": "discounted_products_list",
-     #       "filters": [{"operand1": "discount", "operator": ">", "operand2": 5}]}
-    results = master_function(args)
-
+    
     # RUNNNING FLASK APP
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, threaded=True, host='0.0.0.0', port=5000)
 
