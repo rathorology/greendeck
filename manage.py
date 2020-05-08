@@ -175,8 +175,8 @@ def master_function():
 
 
 # RUN FLASK APPLICATION
-if __name__ == '__main__':
-    '''MAKE SURE YOU HAVE 'gdown' LIBRARY IN YOUR 'requirements.txt' TO DOWNLOAD FILE FROM Gdrive.'''
+#if __name__ == '__main__':
+ #   '''MAKE SURE YOU HAVE 'gdown' LIBRARY IN YOUR 'requirements.txt' TO DOWNLOAD FILE FROM Gdrive.'''
     # GETTING DATASET this function will download the dataset
     #init_files('dumps/netaporter_gb.json')
 
