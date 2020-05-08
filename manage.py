@@ -175,13 +175,13 @@ def master_function():
 
 
 # RUN FLASK APPLICATION
-#if __name__ == '__main__':
- #   '''MAKE SURE YOU HAVE 'gdown' LIBRARY IN YOUR 'requirements.txt' TO DOWNLOAD FILE FROM Gdrive.'''
+if __name__ == '__main__':
+    ##'''MAKE SURE YOU HAVE 'gdown' LIBRARY IN YOUR 'requirements.txt' TO DOWNLOAD FILE FROM Gdrive.'''
     # GETTING DATASET this function will download the dataset
     #init_files('dumps/netaporter_gb.json')
 
-    # PREPARING DATASET
-    #prepare_dataset('dumps/netaporter_gb.json')
+    # #PREPARING DATASET
 
+    #prepare_dataset('dumps/netaporter_gb.json')
     # RUNNNING FLASK APP
     app.run(debug=True, threaded=True, host='0.0.0.0', port=5000)
